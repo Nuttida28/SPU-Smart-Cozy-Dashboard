@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart-Cozy Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* 🎨 ตั้งค่าธีมสีฟ้า-ขาว ตามแบบล่าสุด */
+        :root {
+            --bg-color: #f4f7f6;
+            --panel-bg: #ffffff;
+            --text-main: #2d3748;
+            --text-muted: #718096;
+            --primary-blue: #2563eb;
+            --zone-green: #10b981;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* --- Header --- */
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--panel-bg);
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .header-title h1 {
+            margin: 0;
+            font-size: 1.8em;
+            color: #1a202c;
+        }
+
+        .header-title p {
+            margin: 5px 0 0 0;
+            color: var(--text-muted);
+            font-size: 0.9em;
+        }
+
+        .weather-pill {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- Layout หลัก 3 คอลัมน์ --- */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr 350px;
+            gap: 20px;
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .panel-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        /* --- แถบซ้าย: Simulator --- */
+        .info-box {
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .btn-sync {
+            width: 100%;
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85em;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+
+        /* --- ตรงกลาง: Heatmap --- */
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .zone-card {
+            background-color: var(--zone-green);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .zone-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.8em;
+        }
+
+        .zone-badge {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        /* --- ตรงกลาง: กราฟ Chart.js --- */
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+
+        /* --- แถบขวา: ตาราง Actuation --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        th {
+            text-align: left;
+            color: var(--text-muted);
+            font-weight: normal;
+            padding-bottom: 15px;
+        }
+
+        td {
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .fw-bold {
+            font-weight: bold;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: #cbd5e1;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        /* System Status ล่างขวา */
+        .system-status {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: var(--text-muted);
+        }
+
+        .status-online {
+            color: var(--zone-green);
+        }
+
+        .progress-bar {
+            height: 4px;
+            background-color: var(--border-color);
+            border-radius: 2px;
+            margin-top: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 30%;
+            background-color: var(--primary-blue);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header-container">
+        <div class="header-title">
+            <h1>Smart-Cozy Admin Dashboard 🖥️</h1>
+            <p>ตึก 05 | ชั้น 09 | ห้อง 03</p>
+        </div>
+        <div class="weather-pill" id="weatherDisplay">
+            🌧️ ภายนอก: รอข้อมูล...
+        </div>
+    </div>
+
+    <div class="main-layout">
+
+        <div class="panel">
+            <div class="panel-title">⚙️ Sync Simulator</div>
+            <div class="info-box">
+                ℹ️ ปุ่มนี้ใช้สำหรับจำลองการรับข้อมูลจาก Student App เมื่อหมดรอบการโหวต 30 นาที
+            </div>
+            <button class="btn-sync" onclick="alert('ระบบเตรียมจำลองข้อมูล (รอเชื่อม API)')">
+                🔄 📥 ดึงข้อมูลล่าสุดจากแอป
+            </button>
+            <div style="border: 1px dashed #cbd5e1; padding: 15px; border-radius: 8px;">
+                <div class="form-group">
+                    <label>จำลองผลโหวตเสียงส่วนมาก:</label>
+                    <select>
+                        <option>สถานการณ์ 3: ปกติทุกโซน</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>สภาพอากาศ (WEATHER API):</label>
+                    <select>
+                        <option>🌧️ ฝนตก (24°C)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="panel" style="margin-bottom: 20px;">
+                <div class="panel-title">🗺️ Classroom Heatmap (Real-time)</div>
+                <div class="heatmap-grid">
+                    <div id="Zone_A" class="zone-card">
+                        <h3>Zone A</h3><span class="zone-badge" id="status_A">อุณหภูมิพอดี</span>
+                    </div>
+                    <div id="Zone_B" class="zone-card">
+                        <h3>Zone B</h3><span class="zone-badge" id="status_B">อุณหภูมิพอดี</span>
+                    </div>
+                    <div id="Zone_C" class="zone-card">
+                        <h3>Zone C</h3><span class="zone-badge" id="status_C">อุณหภูมิพอดี</span>
+                    </div>
+                    <div id="Zone_D" class="zone-card">
+                        <h3>Zone D</h3><span class="zone-badge" id="status_D">อุณหภูมิพอดี</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">📊 จำนวนคนโหวต (ล่าสุด)</div>
+                <div class="chart-container">
+                    <canvas id="voteChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">🤖 AI & Device Actuation</div>
+            <p style="font-size: 0.8em; color: var(--text-muted);">ตารางแสดงการสั่งการอุปกรณ์ในห้องตามผลลัพธ์ของ AI</p>
+
+            <table>
+                <tr>
+                    <th>โซน</th>
+                    <th>AC (แอร์)</th>
+                    <th>LIGHT (แสงไฟ)</th>
+                </tr>
+                <tr>
+                    <td class="fw-bold">Zone A</td>
+                    <td id="ac_A">💨 โหมด Auto</td>
+                    <td id="li_A"><span class="status-dot"></span>มาตรฐาน</td>
+                </tr>
+                <tr>
+                    <td class="fw-bold">Zone B</td>
+                    <td id="ac_B">💨 โหมด Auto</td>
+                    <td id="li_B"><span class="status-dot"></span>มาตรฐาน</td>
+                </tr>
+                <tr>
+                    <td class="fw-bold">Zone C</td>
+                    <td id="ac_C">💨 โหมด Auto</td>
+                    <td id="li_C"><span class="status-dot"></span>มาตรฐาน</td>
+                </tr>
+                <tr>
+                    <td class="fw-bold">Zone D</td>
+                    <td id="ac_D">💨 โหมด Auto</td>
+                    <td id="li_D"><span class="status-dot"></span>มาตรฐาน</td>
+                </tr>
+            </table>
+
+            <div class="system-status">
+                <span>SYSTEM STATUS</span>
+                <span class="status-online">● ONLINE</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        // เพิ่มคำสั่ง set เข้ามาเพื่อใช้ส่งข้อมูลจากปุ่ม
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // รหัสกุญแจของฑนภณ
+        const firebaseConfig = {
+            apiKey: "AIzaSyAvS4ekR50AhEPuXE2TOWcRrC96u8WGqi4",
+            authDomain: "smart-cozy.firebaseapp.com",
+            databaseURL: "https://smart-cozy-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "smart-cozy",
+            storageBucket: "smart-cozy.firebasestorage.app",
+            messagingSenderId: "1069475843065",
+            appId: "1:1069475843065:web:50c8a0a38be5d0e7d4cb28"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        // ===== WEATHER API CONFIG =====
+const API_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImE5ZDkwMWYxZTI5NDU5ODRjNGYxMjFlYjU2MWE4ZWExNGVjNDg5YmQwNjc3ZWI1MGNkZDUwOGUwY2ExYjRhMWQ1NWM3NzQ0ZDE0MThlZTMzIn0.eyJhdWQiOiIyIiwianRpIjoiYTlkOTAxZjFlMjk0NTk4NGM0ZjEyMWViNTYxYThlYTE0ZWM0ODliZDA2NzdlYjUwY2RkNTA4ZTBjYTFiNGExZDU1Yzc3NDRkMTQxOGVlMzMiLCJpYXQiOjE3NzM5MjgwOTIsIm5iZiI6MTc3MzkyODA5MiwiZXhwIjoxODA1NDY0MDkyLCJzdWIiOiI1MDU4Iiwic2NvcGVzIjpbXX0.iEiq13tvbMcxjfYgDbAcjfKl79ngE0GaOI8DAv3-30LY4F4aGvjKJXG9dSc1_w46XmiZhEw_YX2Qj0uPSky0TKxzaC71QHF25wpQR5bnLEtMet3IIqUbLfzksFQBSvNZHckqpGDkG9jVPni7BcEHMsgrmVEFOkf6v7iBiUBWwAQ53msxbWTFE52e09Dc78MbkDJYq6Vuh3KILHceMios-LzkZeSTAI7YbEjViXxwh72t0KumHT_P535vVtPZo2VxebwQ-3DcnArrsVXcFDWR1_zv7jsduidymBvbTWViyVuzj-99OzuicBvr9uLF2Qi9tGhN4TFiAZRWIGiXfdjhbtEiFUlHvd7ZK3UG3e3QdKXTP7cjMNdRZGEO8Bfr9tyJtaHWLDbfe1OoGnDo-Ti5EkxTGGyO8Ld5cE4Y2yx7ia0EWv99wc3bGsMnUECEf2yJTjo-XPKYVGgtbL_SK5LitMVStDSVKzOYDID05mLw0YBDv2N_ReL9FPy0fpuLUouyoteRbkK4rPEnykrTb2K1ZXGg63jocg6BQc_pD-CByfXUY_8GyMq7jfHu49Vi3L4bfDo3s499p_JUE1x082Zvf424LyiwAHpA-M0S6LUZTHwNgaOVnBnyEgENv0wWS7UCPQp6rQ2DTc8lML4bN29E5PRB9UZ2EFZoStJaio3GLgs";
+
+const getConditionText = (code) => {
+    const map = {
+        1: "ท้องฟ้าแจ่มใส",
+        2: "มีเมฆบางส่วน",
+        3: "เมฆเป็นส่วนมาก",
+        4: "มีเมฆมาก",
+        5: "ฝนเล็กน้อย",
+        6: "ฝนปานกลาง",
+        7: "ฝนหนัก",
+        8: "ฝนฟ้าคะนอง",
+        9: "อากาศหนาวจัด",
+        10: "อากาศหนาว",
+        11: "อากาศเย็น",
+        12: "อากาศร้อนจัด"
+
+    };
+    return map[code] || "ไม่ระบุ";
+};
+
+const fetchBangkokWeather = async () => {
+    const province = encodeURIComponent("กรุงเทพมหานคร");
+    const amphoe = encodeURIComponent("จตุจักร");
+
+    const API_URL = `https://data.tmd.go.th/nwpapi/v1/forecast/location/hourly/place?province=${province}&amphoe=${amphoe}&fields=tc,cond&duration=1`;
+
+    try {
+        const res = await fetch(API_URL, {
+            method: "GET",
+            headers: {
+                accept: "application/json",
+                authorization: `Bearer ${API_TOKEN}`,
+            },
+        });
+
+        const json = await res.json();
+
+        if (json.WeatherForecasts && json.WeatherForecasts.length > 0) {
+            const data = json.WeatherForecasts[0].forecasts[0].data;
+
+            const temp = data.tc.toFixed(1);
+            const cond = getConditionText(data.cond);
+
+            document.getElementById("weatherDisplay").innerText =
+                `🌤️ ภายนอก: ${cond} ${temp}°C`;
+        }
+
+    } catch (err) {
+        document.getElementById("weatherDisplay").innerText =
+            "❌ โหลดข้อมูลอากาศล้มเหลว";
+        console.error(err);
+    }
+};
+
+        // --- 1. ทำให้ปุ่ม Sync Simulator ใช้งานได้จริง ---
+        // เมื่อกดปุ่มสีน้ำเงิน จะส่งคำสั่งไปกระตุกฝั่ง Backend ให้ทำงาน
+        document.querySelector('.btn-sync').addEventListener('click', () => {
+            // ส่งคำสั่งขึ้น Firebase ไปที่หัวข้อ system_control
+            set(ref(db, 'system_control/trigger_sync'), {
+                command: "run_simulation",
+                timestamp: Date.now()
+            });
+            alert("ส่งสัญญาณดึงข้อมูลจำลองไปยังระบบสมองกล (Backend) เรียบร้อยแล้ว! 🔄");
+        });
+
+        // --- 2. ตั้งค่ากราฟ Chart.js ---
+        const ctx = document.getElementById('voteChart').getContext('2d');
+        const voteChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Zone A', 'Zone B', 'Zone C', 'Zone D'],
+                datasets: [
+                    { label: 'หนาว ❄️', data: [0, 0, 0, 0], backgroundColor: '#0ea5e9', borderRadius: 4 },
+                    { label: 'ร้อน 🔥', data: [0, 0, 0, 0], backgroundColor: '#f43f5e', borderRadius: 4 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+        });
+
+        // --- 3. ดักฟังข้อมูล AI เพื่อเปลี่ยนสี Heatmap และอัปเดตตารางอุปกรณ์ขวามือ ---
+        onValue(ref(db, 'ai_commands/'), (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                // อัปเดต Zone A (สี, ข้อความ, แอร์, ไฟ)
+                if (data.Zone_A) {
+                    document.getElementById("Zone_A").style.backgroundColor = data.Zone_A.color;
+                    document.getElementById("status_A").innerText = data.Zone_A.status;
+                    if (data.Zone_A.ac) document.getElementById("ac_A").innerText = data.Zone_A.ac;
+                    if (data.Zone_A.light) document.getElementById("li_A").innerHTML = `<span class="status-dot" style="background-color:${data.Zone_A.color}"></span>${data.Zone_A.light}`;
+                }
+                // อัปเดต Zone B
+                if (data.Zone_B) {
+                    document.getElementById("Zone_B").style.backgroundColor = data.Zone_B.color;
+                    document.getElementById("status_B").innerText = data.Zone_B.status;
+                    if (data.Zone_B.ac) document.getElementById("ac_B").innerText = data.Zone_B.ac;
+                    if (data.Zone_B.light) document.getElementById("li_B").innerHTML = `<span class="status-dot" style="background-color:${data.Zone_B.color}"></span>${data.Zone_B.light}`;
+                }
+                // อัปเดต Zone C
+                if (data.Zone_C) {
+                    document.getElementById("Zone_C").style.backgroundColor = data.Zone_C.color;
+                    document.getElementById("status_C").innerText = data.Zone_C.status;
+                    if (data.Zone_C.ac) document.getElementById("ac_C").innerText = data.Zone_C.ac;
+                    if (data.Zone_C.light) document.getElementById("li_C").innerHTML = `<span class="status-dot" style="background-color:${data.Zone_C.color}"></span>${data.Zone_C.light}`;
+                }
+                // อัปเดต Zone D
+                if (data.Zone_D) {
+                    document.getElementById("Zone_D").style.backgroundColor = data.Zone_D.color;
+                    document.getElementById("status_D").innerText = data.Zone_D.status;
+                    if (data.Zone_D.ac) document.getElementById("ac_D").innerText = data.Zone_D.ac;
+                    if (data.Zone_D.light) document.getElementById("li_D").innerHTML = `<span class="status-dot" style="background-color:${data.Zone_D.color}"></span>${data.Zone_D.light}`;
+                }
+            }
+        });
+
+        // --- 4. ดักฟังข้อมูลก้อนอื่นๆ ---
+        onValue(ref(db, 'current_weather/'), (snapshot) => {
+            if (snapshot.val()) document.getElementById("weatherDisplay").innerText = `🌧️ ภายนอก: ${snapshot.val().condition} ${snapshot.val().temp}°C`;
+        });
+        onValue(ref(db, 'vote_summary/'), (snapshot) => {
+            const sum = snapshot.val();
+            if (sum) {
+                voteChart.data.datasets[0].data = [sum.Zone_A?.cold || 0, sum.Zone_B?.cold || 0, sum.Zone_C?.cold || 0, sum.Zone_D?.cold || 0];
+                voteChart.data.datasets[1].data = [sum.Zone_A?.hot || 0, sum.Zone_B?.hot || 0, sum.Zone_C?.hot || 0, sum.Zone_D?.hot || 0];
+                voteChart.update();
+            }
+        });
+        fetchBangkokWeather();
+setInterval(fetchBangkokWeather, 600000); // ทุก 10 นาที
+    </script>
+</body>
+
+</html>
