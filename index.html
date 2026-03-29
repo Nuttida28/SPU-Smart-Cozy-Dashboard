@@ -7,7 +7,6 @@
     <title>Smart-Cozy Admin Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* 🎨 ตั้งค่าธีมสีฟ้า-ขาว ตามแบบล่าสุด */
         :root {
             --bg-color: #f4f7f6;
             --panel-bg: #ffffff;
@@ -26,7 +25,6 @@
             padding: 20px;
         }
 
-        /* --- Header --- */
         .header-container {
             display: flex;
             justify-content: space-between;
@@ -38,17 +36,8 @@
             margin-bottom: 20px;
         }
 
-        .header-title h1 {
-            margin: 0;
-            font-size: 1.8em;
-            color: #1a202c;
-        }
-
-        .header-title p {
-            margin: 5px 0 0 0;
-            color: var(--text-muted);
-            font-size: 0.9em;
-        }
+        .header-title h1 { margin: 0; font-size: 1.8em; color: #1a202c; }
+        .header-title p { margin: 5px 0 0 0; color: var(--text-muted); font-size: 0.9em; }
 
         .weather-pill {
             background-color: #e0f2fe;
@@ -61,7 +50,6 @@
             gap: 10px;
         }
 
-        /* --- Layout หลัก 3 คอลัมน์ --- */
         .main-layout {
             display: grid;
             grid-template-columns: 280px 1fr 350px;
@@ -87,7 +75,6 @@
             padding-bottom: 15px;
         }
 
-        /* --- แถบซ้าย: Simulator --- */
         .info-box {
             background-color: #f8fafc;
             padding: 15px;
@@ -110,25 +97,10 @@
             margin-bottom: 20px;
         }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.85em; color: var(--text-muted); margin-bottom: 5px; }
+        .form-group select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; }
 
-        .form-group label {
-            display: block;
-            font-size: 0.85em;
-            color: var(--text-muted);
-            margin-bottom: 5px;
-        }
-
-        .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-        }
-
-        /* --- ตรงกลาง: Heatmap --- */
         .heatmap-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -145,10 +117,7 @@
             transition: all 0.3s;
         }
 
-        .zone-card h3 {
-            margin: 0 0 10px 0;
-            font-size: 1.8em;
-        }
+        .zone-card h3 { margin: 0 0 10px 0; font-size: 1.8em; }
 
         .zone-badge {
             background-color: rgba(0, 0, 0, 0.2);
@@ -157,35 +126,12 @@
             font-size: 0.9em;
         }
 
-        /* --- ตรงกลาง: กราฟ Chart.js --- */
-        .chart-container {
-            position: relative;
-            height: 250px;
-            width: 100%;
-        }
+        .chart-container { position: relative; height: 250px; width: 100%; }
 
-        /* --- แถบขวา: ตาราง Actuation --- */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9em;
-        }
-
-        th {
-            text-align: left;
-            color: var(--text-muted);
-            font-weight: normal;
-            padding-bottom: 15px;
-        }
-
-        td {
-            padding: 12px 0;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .fw-bold {
-            font-weight: bold;
-        }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+        th { text-align: left; color: var(--text-muted); font-weight: normal; padding-bottom: 15px; }
+        td { padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+        .fw-bold { font-weight: bold; }
 
         .status-dot {
             display: inline-block;
@@ -196,7 +142,6 @@
             margin-right: 5px;
         }
 
-        /* System Status ล่างขวา */
         .system-status {
             margin-top: 30px;
             display: flex;
@@ -206,23 +151,11 @@
             color: var(--text-muted);
         }
 
-        .status-online {
-            color: var(--zone-green);
-        }
+        .status-online { color: var(--zone-green); }
+        .status-offline { color: #ef4444; }
 
-        .progress-bar {
-            height: 4px;
-            background-color: var(--border-color);
-            border-radius: 2px;
-            margin-top: 5px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            width: 30%;
-            background-color: var(--primary-blue);
-            border-radius: 2px;
-        }
+        .progress-bar { height: 4px; background-color: var(--border-color); border-radius: 2px; margin-top: 5px; }
+        .progress-fill { height: 100%; width: 30%; background-color: var(--primary-blue); border-radius: 2px; }
     </style>
 </head>
 
@@ -245,21 +178,17 @@
             <div class="info-box">
                 ℹ️ ปุ่มนี้ใช้สำหรับจำลองการรับข้อมูลจาก Student App เมื่อหมดรอบการโหวต 30 นาที
             </div>
-            <button class="btn-sync" onclick="alert('ระบบเตรียมจำลองข้อมูล (รอเชื่อม API)')">
+            <button class="btn-sync">
                 🔄 📥 ดึงข้อมูลล่าสุดจากแอป
             </button>
             <div style="border: 1px dashed #cbd5e1; padding: 15px; border-radius: 8px;">
                 <div class="form-group">
                     <label>จำลองผลโหวตเสียงส่วนมาก:</label>
-                    <select>
-                        <option>สถานการณ์ 3: ปกติทุกโซน</option>
-                    </select>
+                    <select><option>สถานการณ์ 3: ปกติทุกโซน</option></select>
                 </div>
                 <div class="form-group">
                     <label>สภาพอากาศ (WEATHER API):</label>
-                    <select>
-                        <option>🌧️ ฝนตก (24°C)</option>
-                    </select>
+                    <select><option>🌧️ ฝนตก (24°C)</option></select>
                 </div>
             </div>
         </div>
@@ -268,18 +197,10 @@
             <div class="panel" style="margin-bottom: 20px;">
                 <div class="panel-title">🗺️ Classroom Heatmap (Real-time)</div>
                 <div class="heatmap-grid">
-                    <div id="Zone_A" class="zone-card">
-                        <h3>Zone A</h3><span class="zone-badge" id="status_A">อุณหภูมิพอดี</span>
-                    </div>
-                    <div id="Zone_B" class="zone-card">
-                        <h3>Zone B</h3><span class="zone-badge" id="status_B">อุณหภูมิพอดี</span>
-                    </div>
-                    <div id="Zone_C" class="zone-card">
-                        <h3>Zone C</h3><span class="zone-badge" id="status_C">อุณหภูมิพอดี</span>
-                    </div>
-                    <div id="Zone_D" class="zone-card">
-                        <h3>Zone D</h3><span class="zone-badge" id="status_D">อุณหภูมิพอดี</span>
-                    </div>
+                    <div id="Zone_A" class="zone-card"><h3>Zone A</h3><span class="zone-badge" id="status_A">อุณหภูมิพอดี</span></div>
+                    <div id="Zone_B" class="zone-card"><h3>Zone B</h3><span class="zone-badge" id="status_B">อุณหภูมิพอดี</span></div>
+                    <div id="Zone_C" class="zone-card"><h3>Zone C</h3><span class="zone-badge" id="status_C">อุณหภูมิพอดี</span></div>
+                    <div id="Zone_D" class="zone-card"><h3>Zone D</h3><span class="zone-badge" id="status_D">อุณหภูมิพอดี</span></div>
                 </div>
             </div>
 
@@ -294,13 +215,8 @@
         <div class="panel">
             <div class="panel-title">🤖 AI & Device Actuation</div>
             <p style="font-size: 0.8em; color: var(--text-muted);">ตารางแสดงการสั่งการอุปกรณ์ในห้องตามผลลัพธ์ของ AI</p>
-
             <table>
-                <tr>
-                    <th>โซน</th>
-                    <th>AC (แอร์)</th>
-                    <th>LIGHT (แสงไฟ)</th>
-                </tr>
+                <tr><th>โซน</th><th>AC (แอร์)</th><th>LIGHT (แสงไฟ)</th></tr>
                 <tr>
                     <td class="fw-bold">Zone A</td>
                     <td id="ac_A">💨 โหมด Auto</td>
@@ -325,7 +241,7 @@
 
             <div class="system-status">
                 <span>SYSTEM STATUS</span>
-                <span class="status-online">● ONLINE</span>
+                <span id="systemStatusText" class="status-online">● ONLINE</span>
             </div>
             <div class="progress-bar">
                 <div class="progress-fill"></div>
@@ -336,10 +252,27 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        // เพิ่มคำสั่ง set เข้ามาเพื่อใช้ส่งข้อมูลจากปุ่ม
         import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // รหัสกุญแจของฑนภณ
+        // ══════════════════════════════════════════════════
+        //  🛠️  DIAGNOSTIC LOGGER
+        //  เปิด DevTools > Console แล้วกรอง "API" / "FIREBASE"
+        //  / "DB READ" / "OK" / "ERROR" เพื่อดูแต่ละหัวข้อ
+        // ══════════════════════════════════════════════════
+        const log = {
+            group:    (label)      => console.group(label),
+            groupEnd: ()           => console.groupEnd(),
+            api:      (msg, data)  => console.log (`%c🌐 API      %c${msg}`, 'color:#0ea5e9;font-weight:bold', 'color:inherit', data ?? ''),
+            firebase: (msg, data)  => console.log (`%c📡 FIREBASE %c${msg}`, 'color:#f97316;font-weight:bold', 'color:inherit', data ?? ''),
+            read:     (msg, data)  => console.log (`%c📥 DB READ  %c${msg}`, 'color:#8b5cf6;font-weight:bold', 'color:inherit', data ?? ''),
+            ok:       (msg, data)  => console.log (`%c🟢 OK       %c${msg}`, 'color:#10b981;font-weight:bold', 'color:inherit', data ?? ''),
+            err:      (msg, err)   => console.error(`%c🔴 ERROR    %c${msg}`, 'color:#ef4444;font-weight:bold', 'color:inherit', err  ?? ''),
+        };
+
+        // ══════════════════════════════════════════════════
+        //  🔥 FIREBASE INIT
+        // ══════════════════════════════════════════════════
+        log.group('🔥 Firebase — Initializing');
         const firebaseConfig = {
             apiKey: "AIzaSyAvS4ekR50AhEPuXE2TOWcRrC96u8WGqi4",
             authDomain: "smart-cozy.firebaseapp.com",
@@ -350,139 +283,224 @@
             appId: "1:1069475843065:web:50c8a0a38be5d0e7d4cb28"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        // ===== WEATHER API CONFIG =====
-const API_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImE5ZDkwMWYxZTI5NDU5ODRjNGYxMjFlYjU2MWE4ZWExNGVjNDg5YmQwNjc3ZWI1MGNkZDUwOGUwY2ExYjRhMWQ1NWM3NzQ0ZDE0MThlZTMzIn0.eyJhdWQiOiIyIiwianRpIjoiYTlkOTAxZjFlMjk0NTk4NGM0ZjEyMWViNTYxYThlYTE0ZWM0ODliZDA2NzdlYjUwY2RkNTA4ZTBjYTFiNGExZDU1Yzc3NDRkMTQxOGVlMzMiLCJpYXQiOjE3NzM5MjgwOTIsIm5iZiI6MTc3MzkyODA5MiwiZXhwIjoxODA1NDY0MDkyLCJzdWIiOiI1MDU4Iiwic2NvcGVzIjpbXX0.iEiq13tvbMcxjfYgDbAcjfKl79ngE0GaOI8DAv3-30LY4F4aGvjKJXG9dSc1_w46XmiZhEw_YX2Qj0uPSky0TKxzaC71QHF25wpQR5bnLEtMet3IIqUbLfzksFQBSvNZHckqpGDkG9jVPni7BcEHMsgrmVEFOkf6v7iBiUBWwAQ53msxbWTFE52e09Dc78MbkDJYq6Vuh3KILHceMios-LzkZeSTAI7YbEjViXxwh72t0KumHT_P535vVtPZo2VxebwQ-3DcnArrsVXcFDWR1_zv7jsduidymBvbTWViyVuzj-99OzuicBvr9uLF2Qi9tGhN4TFiAZRWIGiXfdjhbtEiFUlHvd7ZK3UG3e3QdKXTP7cjMNdRZGEO8Bfr9tyJtaHWLDbfe1OoGnDo-Ti5EkxTGGyO8Ld5cE4Y2yx7ia0EWv99wc3bGsMnUECEf2yJTjo-XPKYVGgtbL_SK5LitMVStDSVKzOYDID05mLw0YBDv2N_ReL9FPy0fpuLUouyoteRbkK4rPEnykrTb2K1ZXGg63jocg6BQc_pD-CByfXUY_8GyMq7jfHu49Vi3L4bfDo3s499p_JUE1x082Zvf424LyiwAHpA-M0S6LUZTHwNgaOVnBnyEgENv0wWS7UCPQp6rQ2DTc8lML4bN29E5PRB9UZ2EFZoStJaio3GLgs";
-
-const getConditionText = (code) => {
-    const map = {
-        1: "ท้องฟ้าแจ่มใส",
-        2: "มีเมฆบางส่วน",
-        3: "เมฆเป็นส่วนมาก",
-        4: "มีเมฆมาก",
-        5: "ฝนเล็กน้อย",
-        6: "ฝนปานกลาง",
-        7: "ฝนหนัก",
-        8: "ฝนฟ้าคะนอง",
-        9: "อากาศหนาวจัด",
-        10: "อากาศหนาว",
-        11: "อากาศเย็น",
-        12: "อากาศร้อนจัด"
-
-    };
-    return map[code] || "ไม่ระบุ";
-};
-
-const fetchBangkokWeather = async () => {
-    const province = encodeURIComponent("กรุงเทพมหานคร");
-    const amphoe = encodeURIComponent("จตุจักร");
-
-    const API_URL = `https://data.tmd.go.th/nwpapi/v1/forecast/location/hourly/place?province=${province}&amphoe=${amphoe}&fields=tc,cond&duration=1`;
-
-    try {
-        const res = await fetch(API_URL, {
-            method: "GET",
-            headers: {
-                accept: "application/json",
-                authorization: `Bearer ${API_TOKEN}`,
-            },
-        });
-
-        const json = await res.json();
-
-        if (json.WeatherForecasts && json.WeatherForecasts.length > 0) {
-            const data = json.WeatherForecasts[0].forecasts[0].data;
-
-            const temp = data.tc.toFixed(1);
-            const cond = getConditionText(data.cond);
-
-            document.getElementById("weatherDisplay").innerText =
-                `🌤️ ภายนอก: ${cond} ${temp}°C`;
-        }
-
-    } catch (err) {
-        document.getElementById("weatherDisplay").innerText =
-            "❌ โหลดข้อมูลอากาศล้มเหลว";
-        console.error(err);
-    }
-};
-
-        // --- 1. ทำให้ปุ่ม Sync Simulator ใช้งานได้จริง ---
-        // เมื่อกดปุ่มสีน้ำเงิน จะส่งคำสั่งไปกระตุกฝั่ง Backend ให้ทำงาน
-        document.querySelector('.btn-sync').addEventListener('click', () => {
-            // ส่งคำสั่งขึ้น Firebase ไปที่หัวข้อ system_control
-            set(ref(db, 'system_control/trigger_sync'), {
-                command: "run_simulation",
-                timestamp: Date.now()
+        let app, db;
+        try {
+            app = initializeApp(firebaseConfig);
+            db  = getDatabase(app);
+            log.ok('initializeApp() + getDatabase() สำเร็จ ✅', {
+                project: firebaseConfig.projectId,
+                region: 'asia-southeast1'
             });
-            alert("ส่งสัญญาณดึงข้อมูลจำลองไปยังระบบสมองกล (Backend) เรียบร้อยแล้ว! 🔄");
+        } catch (initErr) {
+            log.err('Firebase init ล้มเหลว ❌', initErr);
+        }
+        log.groupEnd();
+
+        // ══════════════════════════════════════════════════
+        //  🟢🔴 FIREBASE ONLINE / OFFLINE — .info/connected
+        //  path พิเศษของ Firebase บอกสถานะ WebSocket จริงๆ
+        // ══════════════════════════════════════════════════
+        const statusEl = document.getElementById('systemStatusText');
+        log.read('ตั้ง Listener → .info/connected');
+        onValue(ref(db, '.info/connected'), (snap) => {
+            if (snap.val() === true) {
+                log.ok('Firebase Realtime DB → 🟢 ONLINE (WebSocket connected)');
+                statusEl.textContent = '● ONLINE';
+                statusEl.className   = 'status-online';
+            } else {
+                log.err('Firebase Realtime DB → 🔴 OFFLINE (ขาดการเชื่อมต่อ)');
+                statusEl.textContent = '● OFFLINE';
+                statusEl.className   = 'status-offline';
+            }
         });
 
-        // --- 2. ตั้งค่ากราฟ Chart.js ---
+        // ══════════════════════════════════════════════════
+        //  🌐 WEATHER API — TMD
+        // ══════════════════════════════════════════════════
+        const API_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImE5ZDkwMWYxZTI5NDU5ODRjNGYxMjFlYjU2MWE4ZWExNGVjNDg5YmQwNjc3ZWI1MGNkZDUwOGUwY2ExYjRhMWQ1NWM3NzQ0ZDE0MThlZTMzIn0.eyJhdWQiOiIyIiwianRpIjoiYTlkOTAxZjFlMjk0NTk4NGM0ZjEyMWViNTYxYThlYTE0ZWM0ODliZDA2NzdlYjUwY2RkNTA4ZTBjYTFiNGExZDU1Yzc3NDRkMTQxOGVlMzMiLCJpYXQiOjE3NzM5MjgwOTIsIm5iZiI6MTc3MzkyODA5MiwiZXhwIjoxODA1NDY0MDkyLCJzdWIiOiI1MDU4Iiwic2NvcGVzIjpbXX0.iEiq13tvbMcxjfYgDbAcjfKl79ngE0GaOI8DAv3-30LY4F4aGvjKJXG9dSc1_w46XmiZhEw_YX2Qj0uPSky0TKxzaC71QHF25wpQR5bnLEtMet3IIqUbLfzksFQBSvNZHckqpGDkG9jVPni7BcEHMsgrmVEFOkf6v7iBiUBWwAQ53msxbWTFE52e09Dc78MbkDJYq6Vuh3KILHceMios-LzkZeSTAI7YbEjViXxwh72t0KumHT_P535vVtPZo2VxebwQ-3DcnArrsVXcFDWR1_zv7jsduidymBvbTWViyVuzj-99OzuicBvr9uLF2Qi9tGhN4TFiAZRWIGiXfdjhbtEiFUlHvd7ZK3UG3e3QdKXTP7cjMNdRZGEO8Bfr9tyJtaHWLDbfe1OoGnDo-Ti5EkxTGGyO8Ld5cE4Y2yx7ia0EWv99wc3bGsMnUECEf2yJTjo-XPKYVGgtbL_SK5LitMVStDSVKzOYDID05mLw0YBDv2N_ReL9FPy0fpuLUouyoteRbkK4rPEnykrTb2K1ZXGg63jocg6BQc_pD-CByfXUY_8GyMq7jfHu49Vi3L4bfDo3s499p_JUE1x082Zvf424LyiwAHpA-M0S6LUZTHwNgaOVnBnyEgENv0wWS7UCPQp6rQ2DTc8lML4bN29E5PRB9UZ2EFZoStJaio3GLgs";
+
+        const getConditionText = (code) => {
+            const map = {
+                1:"ท้องฟ้าแจ่มใส", 2:"มีเมฆบางส่วน", 3:"เมฆเป็นส่วนมาก",
+                4:"มีเมฆมาก", 5:"ฝนเล็กน้อย", 6:"ฝนปานกลาง", 7:"ฝนหนัก",
+                8:"ฝนฟ้าคะนอง", 9:"อากาศหนาวจัด", 10:"อากาศหนาว",
+                11:"อากาศเย็น", 12:"อากาศร้อนจัด"
+            };
+            return map[code] || `ไม่ระบุ (code ${code})`;
+        };
+
+        const fetchBangkokWeather = async () => {
+            const province = encodeURIComponent("กรุงเทพมหานคร");
+            const amphoe   = encodeURIComponent("จตุจักร");
+            const API_URL  = `https://data.tmd.go.th/nwpapi/v1/forecast/location/hourly/place?province=${province}&amphoe=${amphoe}&fields=tc,cond&duration=1`;
+
+            log.group('🌐 Weather API — fetchBangkokWeather()');
+            log.api('เริ่ม fetch → TMD API', { url: API_URL });
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: "GET",
+                    headers: {
+                        accept: "application/json",
+                        authorization: `Bearer ${API_TOKEN}`,
+                    },
+                });
+
+                // ── ตรวจ HTTP Status ──
+                log.api(`Response HTTP ${res.status} ${res.statusText}`, { ok: res.ok });
+
+                if (!res.ok) {
+                    log.err(`API ตอบกลับ error HTTP ${res.status} — ไม่สามารถดึงข้อมูลได้`);
+                    document.getElementById("weatherDisplay").innerText = `❌ API Error: ${res.status}`;
+                    log.groupEnd();
+                    return;
+                }
+
+                const json = await res.json();
+                const data = json.WeatherForecasts[0].forecasts[0].data;
+                const temp = data.tc.toFixed(1);
+                const cond = getConditionText(data.cond);
+
+                log.ok('🌐 API ทำงาน ✅ — ได้รับข้อมูลสำเร็จ', {
+                    condition: cond,
+                    temp: `${temp}°C`,
+                    raw_tc: data.tc,
+                    raw_cond: data.cond
+                });
+
+                document.getElementById("weatherDisplay").innerText = `🌤️ ภายนอก: ${cond} ${temp}°C`;
+
+                // ── ส่งข้อมูลไป Firebase ──
+                log.firebase('กำลัง set() → current_weather/', { condition: cond, temp });
+                try {
+                    await set(ref(db, 'current_weather/'), {
+                        condition: cond,
+                        temp: temp,
+                        timestamp: Date.now()
+                    });
+                    log.ok('📡 ส่ง Firebase สำเร็จ ✅  path: current_weather/', { condition: cond, temp });
+                } catch (fbErr) {
+                    log.err('📡 ส่ง Firebase ล้มเหลว ❌  path: current_weather/', fbErr);
+                }
+
+            } catch (fetchErr) {
+                // fetch() throw = เน็ตขาด, CORS block, หรือ API ล่ม
+                log.err('🌐 API ล้มเหลว ❌ — fetch() throw (เน็ตขาด / CORS / API ล่ม)', fetchErr);
+                document.getElementById("weatherDisplay").innerText = "❌ โหลดข้อมูลอากาศล้มเหลว";
+            }
+
+            log.groupEnd();
+        };
+
+        // ══════════════════════════════════════════════════
+        //  📡 SYNC BUTTON — ส่ง trigger ไป Firebase
+        // ══════════════════════════════════════════════════
+        document.querySelector('.btn-sync').addEventListener('click', async () => {
+            log.group('📡 Sync Button — คลิก');
+            log.firebase('กำลัง set() trigger → system_control/trigger_sync');
+            try {
+                await set(ref(db, 'system_control/trigger_sync'), {
+                    command: "run_simulation",
+                    timestamp: Date.now()
+                });
+                log.ok('📡 ส่ง Firebase สำเร็จ ✅  path: system_control/trigger_sync', { command: 'run_simulation' });
+                alert("ส่งสัญญาณดึงข้อมูลจำลองไปยังระบบสมองกล (Backend) เรียบร้อยแล้ว! 🔄");
+            } catch (fbErr) {
+                log.err('📡 ส่ง Firebase ล้มเหลว ❌  path: system_control/trigger_sync', fbErr);
+                alert("❌ ส่งสัญญาณล้มเหลว — กรุณาดู Console");
+            }
+            log.groupEnd();
+        });
+
+        // ══════════════════════════════════════════════════
+        //  📊 CHART.JS
+        // ══════════════════════════════════════════════════
         const ctx = document.getElementById('voteChart').getContext('2d');
         const voteChart = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: ['Zone A', 'Zone B', 'Zone C', 'Zone D'],
                 datasets: [
-                    { label: 'หนาว ❄️', data: [0, 0, 0, 0], backgroundColor: '#0ea5e9', borderRadius: 4 },
-                    { label: 'ร้อน 🔥', data: [0, 0, 0, 0], backgroundColor: '#f43f5e', borderRadius: 4 }
+                    { label: 'หนาว ❄️', data: [0,0,0,0], backgroundColor: '#0ea5e9', borderRadius: 4 },
+                    { label: 'ร้อน 🔥',  data: [0,0,0,0], backgroundColor: '#f43f5e', borderRadius: 4 }
                 ]
             },
             options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
         });
 
-        // --- 3. ดักฟังข้อมูล AI เพื่อเปลี่ยนสี Heatmap และอัปเดตตารางอุปกรณ์ขวามือ ---
+        // ══════════════════════════════════════════════════
+        //  📥 FIREBASE LISTENERS — อ่านข้อมูล
+        // ══════════════════════════════════════════════════
+
+        // ── Listener: ai_commands ──
+        log.read('ตั้ง Listener → ai_commands/');
         onValue(ref(db, 'ai_commands/'), (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                // อัปเดต Zone A (สี, ข้อความ, แอร์, ไฟ)
-                if (data.Zone_A) {
-                    document.getElementById("Zone_A").style.backgroundColor = data.Zone_A.color;
-                    document.getElementById("status_A").innerText = data.Zone_A.status;
-                    if (data.Zone_A.ac) document.getElementById("ac_A").innerText = data.Zone_A.ac;
-                    if (data.Zone_A.light) document.getElementById("li_A").innerHTML = `<span class="status-dot" style="background-color:${data.Zone_A.color}"></span>${data.Zone_A.light}`;
-                }
-                // อัปเดต Zone B
-                if (data.Zone_B) {
-                    document.getElementById("Zone_B").style.backgroundColor = data.Zone_B.color;
-                    document.getElementById("status_B").innerText = data.Zone_B.status;
-                    if (data.Zone_B.ac) document.getElementById("ac_B").innerText = data.Zone_B.ac;
-                    if (data.Zone_B.light) document.getElementById("li_B").innerHTML = `<span class="status-dot" style="background-color:${data.Zone_B.color}"></span>${data.Zone_B.light}`;
-                }
-                // อัปเดต Zone C
-                if (data.Zone_C) {
-                    document.getElementById("Zone_C").style.backgroundColor = data.Zone_C.color;
-                    document.getElementById("status_C").innerText = data.Zone_C.status;
-                    if (data.Zone_C.ac) document.getElementById("ac_C").innerText = data.Zone_C.ac;
-                    if (data.Zone_C.light) document.getElementById("li_C").innerHTML = `<span class="status-dot" style="background-color:${data.Zone_C.color}"></span>${data.Zone_C.light}`;
-                }
-                // อัปเดต Zone D
-                if (data.Zone_D) {
-                    document.getElementById("Zone_D").style.backgroundColor = data.Zone_D.color;
-                    document.getElementById("status_D").innerText = data.Zone_D.status;
-                    if (data.Zone_D.ac) document.getElementById("ac_D").innerText = data.Zone_D.ac;
-                    if (data.Zone_D.light) document.getElementById("li_D").innerHTML = `<span class="status-dot" style="background-color:${data.Zone_D.color}"></span>${data.Zone_D.light}`;
-                }
+            log.group('📥 DB READ — ai_commands/');
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                log.ok('📥 Firebase อ่านได้ ✅  path: ai_commands/', data);
+                ['Zone_A','Zone_B','Zone_C','Zone_D'].forEach(zone => {
+                    const z = data[zone];
+                    const s = zone.split('_')[1]; // A, B, C, D
+                    if (z) {
+                        document.getElementById(zone).style.backgroundColor = z.color;
+                        document.getElementById(`status_${s}`).innerText = z.status;
+                        if (z.ac)    document.getElementById(`ac_${s}`).innerText = z.ac;
+                        if (z.light) document.getElementById(`li_${s}`).innerHTML =
+                            `<span class="status-dot" style="background-color:${z.color}"></span>${z.light}`;
+                        log.read(`  ${zone} updated → color:${z.color} | status:${z.status}`);
+                    } else {
+                        log.read(`  ${zone} → ไม่มีข้อมูลใน snapshot`);
+                    }
+                });
+            } else {
+                log.err('ai_commands/ — snapshot ว่างเปล่า (ยังไม่มีข้อมูลใน DB หรือ path ผิด)');
             }
+            log.groupEnd();
+        }, (err) => {
+            log.err('📥 Firebase อ่านล้มเหลว ❌  path: ai_commands/ (permission denied หรือ DB ออฟไลน์)', err);
         });
 
-        // --- 4. ดักฟังข้อมูลก้อนอื่นๆ ---
+        // ── Listener: current_weather ──
+        log.read('ตั้ง Listener → current_weather/');
         onValue(ref(db, 'current_weather/'), (snapshot) => {
-            if (snapshot.val()) document.getElementById("weatherDisplay").innerText = `🌧️ ภายนอก: ${snapshot.val().condition} ${snapshot.val().temp}°C`;
-        });
-        onValue(ref(db, 'vote_summary/'), (snapshot) => {
-            const sum = snapshot.val();
-            if (sum) {
-                voteChart.data.datasets[0].data = [sum.Zone_A?.cold || 0, sum.Zone_B?.cold || 0, sum.Zone_C?.cold || 0, sum.Zone_D?.cold || 0];
-                voteChart.data.datasets[1].data = [sum.Zone_A?.hot || 0, sum.Zone_B?.hot || 0, sum.Zone_C?.hot || 0, sum.Zone_D?.hot || 0];
-                voteChart.update();
+            log.group('📥 DB READ — current_weather/');
+            if (snapshot.exists()) {
+                const val = snapshot.val();
+                log.ok('📥 Firebase อ่านได้ ✅  path: current_weather/', val);
+                document.getElementById("weatherDisplay").innerText = `🌧️ ภายนอก: ${val.condition} ${val.temp}°C`;
+            } else {
+                log.err('current_weather/ — snapshot ว่างเปล่า');
             }
+            log.groupEnd();
+        }, (err) => {
+            log.err('📥 Firebase อ่านล้มเหลว ❌  path: current_weather/', err);
         });
+
+        // ── Listener: vote_summary ──
+        log.read('ตั้ง Listener → vote_summary/');
+        onValue(ref(db, 'vote_summary/'), (snapshot) => {
+            log.group('📥 DB READ — vote_summary/');
+            if (snapshot.exists()) {
+                const sum = snapshot.val();
+                log.ok('📥 Firebase อ่านได้ ✅  path: vote_summary/', sum);
+                voteChart.data.datasets[0].data = [sum.Zone_A?.cold||0, sum.Zone_B?.cold||0, sum.Zone_C?.cold||0, sum.Zone_D?.cold||0];
+                voteChart.data.datasets[1].data = [sum.Zone_A?.hot||0,  sum.Zone_B?.hot||0,  sum.Zone_C?.hot||0,  sum.Zone_D?.hot||0];
+                voteChart.update();
+            } else {
+                log.err('vote_summary/ — snapshot ว่างเปล่า (ยังไม่มีโหวต)');
+            }
+            log.groupEnd();
+        }, (err) => {
+            log.err('📥 Firebase อ่านล้มเหลว ❌  path: vote_summary/', err);
+        });
+
+        // ══════════════════════════════════════════════════
+        //  🚀 START
+        // ══════════════════════════════════════════════════
         fetchBangkokWeather();
-setInterval(fetchBangkokWeather, 600000); // ทุก 10 นาที
+        setInterval(fetchBangkokWeather, 600000); // ทุก 10 นาที
+
     </script>
 </body>
-
 </html>
