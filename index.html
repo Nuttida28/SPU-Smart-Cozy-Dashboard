@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPU Smart-Cozy Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* =========================================================
+           ✅ ส่วนตกแต่งเพิ่มเติม (UI/UX Improvements)
+           ========================================================= */
+        
+        .ai-scroll-box::-webkit-scrollbar { width: 6px; }
+        .ai-scroll-box::-webkit-scrollbar-track { background: transparent; }
+        .ai-scroll-box::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .ai-scroll-box::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .modern-table { width: 100%; border-collapse: collapse; }
+        .modern-table td { padding: 12px 0; border-bottom: 1px dashed #e2e8f0; font-size: 0.95em; }
+        .modern-table tr:last-child td { border-bottom: none; padding-bottom: 0; }
+        .modern-label { font-weight: 500; color: #475569; }
+        
+        .modern-panel {
+            background: #fff;
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            border: 1px solid #f1f5f9;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .modern-panel::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
+        }
+        .panel-blue::before { background: #0ea5e9; }
+        .panel-purple::before { background: #8b5cf6; }
+        .panel-green::before { background: #10b981; }
+    </style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <div id="start-screen" class="start-screen-wrapper">
+        <div class="start-modal">
+            <div class="modal-header">
+                <h2>Smart-Cozy Admin</h2>
+                <p>กรุณาระบุตำแหน่งห้องเรียนเพื่อเข้าสู่ระบบ</p>
+            </div>
+            <div class="location-box">
+                <div class="form-group custom-select"><select id="buildingSelect" onchange="updateFloors()"><option value="" disabled selected>-- โหลดข้อมูลตึกเรียน --</option></select></div>
+                <div class="form-group custom-select"><select id="floorSelect" onchange="updateRooms()"><option value="" disabled selected>-- เลือกชั้นเรียน --</option></select></div>
+                <div class="form-group custom-select"><select id="roomSelect"><option value="" disabled selected>-- เลือกห้องเรียน --</option></select></div>
+            </div>
+            <button class="btn-sync" onclick="enterDashboard()">เข้าสู่ Dashboard</button>
+        </div>
+    </div>
+
+    <div id="dashboard-screen" class="dashboard-wrapper" style="display:none;">
+        <div class="header-container">
+            <div class="title-section"><h1>Smart-Cozy Admin <span id="db-status-badge" class="status-badge offline-badge">Offline</span></h1></div>
+            <div class="weather-pill" id="weatherDisplay">สภาพอากาศภายนอก °C</div>
+        </div>
+
+        <div class="main-layout">
+            <div class="column-left">
+                <div class="panel">
+                    <div class="panel-title">ห้องเรียนที่กำลังมอนิเตอร์</div>
+                    <hr class="dashed-divider">
+                    <div class="current-room-box" id="currentRoomDisplay">--</div>
+                    <button class="btn-change-room" onclick="goBackToSelect()">⬅ เปลี่ยนห้องเรียน</button>
+                    <div id="deviceInfo" style="display:none;"><span id="deviceDetail"></span></div>
+                </div>
+                <div class="panel">
+                    <div class="panel-title" style="justify-content: center;">จำนวนคนโหวต (ล่าสุด)</div>
+                    <hr class="dashed-divider">
+                    <div class="vote-legend">
+                        <span class="legend-pill cold">หนาว</span>
+                        <span class="legend-pill cozy">สบาย</span>
+                        <span class="legend-pill hot">ร้อน</span>
+                    </div>
+                    <div class="vote-ui-table">
+                        <div class="vote-zone"><div class="z-header">Zone A</div><div class="z-values"><div class="v-box bg-cold" id="v_cold_A">0</div><div class="v-box bg-cozy" id="v_cozy_A">0</div><div class="v-box bg-hot" id="v_hot_A">0</div></div></div>
+                        <div class="vote-zone"><div class="z-header">Zone B</div><div class="z-values"><div class="v-box bg-cold" id="v_cold_B">0</div><div class="v-box bg-cozy" id="v_cozy_B">0</div><div class="v-box bg-hot" id="v_hot_B">0</div></div></div>
+                        <div class="vote-zone"><div class="z-header">Zone C</div><div class="z-values"><div class="v-box bg-cold" id="v_cold_C">0</div><div class="v-box bg-cozy" id="v_cozy_C">0</div><div class="v-box bg-hot" id="v_hot_C">0</div></div></div>
+                        <div class="vote-zone"><div class="z-header">Zone D</div><div class="z-values"><div class="v-box bg-cold" id="v_cold_D">0</div><div class="v-box bg-cozy" id="v_cozy_D">0</div><div class="v-box bg-hot" id="v_hot_D">0</div></div></div>
+                    </div>
+                    <canvas id="voteChart" style="display:none;"></canvas>
+                </div>
+            </div>
+
+            <div class="column-center">
+                <div class="panel heatmap-panel">
+                    <div class="panel-title" id="heatmapTitle">Classroom Heatmap</div>
+                    <hr class="dashed-divider">
+                    <div class="white-board-wrapper"><div class="white-board-main"></div></div>
+                    <div class="heatmap-container" style="padding: 30px 40px 40px 50px;">
+                        
+                        <div id="acGroupLab" style="display: none;">
+                            <div class="ac-unit pos-top-left"><div class="ac-icon"></div><div class="ac-wind">* 〰️</div></div>
+                            <div class="ac-unit pos-top-center"><div class="ac-icon"></div><div class="ac-wind">* 〰️</div></div>
+                            <div class="ac-unit pos-top-right"><div class="ac-icon"></div><div class="ac-wind">* 〰️</div></div>
+                        </div>
+
+                        <div id="acGroupLecturer" style="display: none;">
+                            <div class="ac-unit pos-left-top"><div class="ac-icon"></div><div class="ac-wind">* 〰️</div></div>
+                            <div class="ac-unit pos-left-bottom"><div class="ac-icon"></div><div class="ac-wind">* 〰️</div></div>
+                        </div>
+
+                        <div class="heatmap-grid">
+                            <div class="zone-wrapper align-left"><div class="zone-letter" id="letter_A">A</div><div id="Zone_A" class="zone-card"><div class="seats-grid"></div></div></div>
+                            <div class="zone-wrapper align-right"><div id="Zone_B" class="zone-card"><div class="seats-grid"></div></div><div class="zone-letter" id="letter_B">B</div></div>
+                            <div class="zone-wrapper align-left"><div class="zone-letter" id="letter_C">C</div><div id="Zone_C" class="zone-card"><div class="seats-grid"></div></div></div>
+                            <div class="zone-wrapper align-right"><div id="Zone_D" class="zone-card"><div class="seats-grid"></div></div><div class="zone-letter" id="letter_D">D</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column-right">
+                
+                <div class="modern-panel panel-blue">
+                    <div class="panel-title" style="color: #0284c7; font-size: 1.1em; margin-bottom: 5px;">🌡️ Temperature Sensor</div>
+                    <p style="font-size: 0.8em; color: #94a3b8; margin-top: 0; margin-bottom: 15px;">อุณหภูมิจากเซ็นเซอร์แต่ละโซน</p>
+                    <table class="modern-table">
+                        <tr><td class="modern-label">Zone A</td><td style="text-align: right; font-weight: 800; color: #0284c7; font-size: 1.15em;"><span id="temp_A">--</span></td></tr>
+                        <tr><td class="modern-label">Zone B</td><td style="text-align: right; font-weight: 800; color: #0284c7; font-size: 1.15em;"><span id="temp_B">--</span></td></tr>
+                        <tr><td class="modern-label">Zone C</td><td style="text-align: right; font-weight: 800; color: #0284c7; font-size: 1.15em;"><span id="temp_C">--</span></td></tr>
+                        <tr><td class="modern-label">Zone D</td><td style="text-align: right; font-weight: 800; color: #0284c7; font-size: 1.15em;"><span id="temp_D">--</span></td></tr>
+                    </table>
+                </div>
+
+                <div class="modern-panel panel-purple">
+                    <div class="panel-title" style="color: #6d28d9; font-size: 1.1em; margin-bottom: 5px;">⚙️ AI AC Louvers</div>
+                    <p style="font-size: 0.8em; color: #94a3b8; margin-top: 0; margin-bottom: 15px;">องศาการสวิงที่ถูกปรับโดย AI</p>
+                    <table class="modern-table">
+                        <tr><td class="modern-label">AC 1</td><td style="text-align: right; font-weight: 800; color: #7c3aed; font-size: 1.1em;"><span id="servo_1">--</span></td></tr>
+                        <tr><td class="modern-label">AC 2</td><td style="text-align: right; font-weight: 800; color: #7c3aed; font-size: 1.1em;"><span id="servo_2">--</span></td></tr>
+                        <tr id="ac3_row"><td class="modern-label">AC 3</td><td style="text-align: right; font-weight: 800; color: #7c3aed; font-size: 1.1em;"><span id="servo_3">--</span></td></tr>
+                    </table>
+                </div>
+
+                <div class="modern-panel panel-green">
+                    <div class="panel-title" style="color: #059669; font-size: 1.1em; margin-bottom: 5px;">🤖 AI Explanation</div>
+                    <p style="font-size: 0.8em; color: #94a3b8; margin-top: 0; margin-bottom: 15px;">บันทึกผลการตัดสินใจจากระบบ</p>
+                    
+                    <div class="ai-scroll-box" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; font-size: 14px; line-height: 1.6; color: #475569; max-height: 250px; overflow-y: auto; font-family: 'Prompt', sans-serif; font-weight: 400;">
+                        <div id="aiReasoningDisplay">-- รอรับข้อมูลจาก Database --</div>
+                    </div>
+                </div>
+
+                <div style="display: none;" id="aiMessage"></div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function enterDashboard() {
+            const b = document.getElementById("buildingSelect").value;
+            const f = document.getElementById("floorSelect").value;
+            const r = document.getElementById("roomSelect").value;
+            if (!b || !f || !r) return;
+            const fStr = parseInt(f) < 10 ? '0' + parseInt(f) : parseInt(f);
+            const rStr = parseInt(r) < 10 ? '0' + parseInt(r) : parseInt(r);
+            document.getElementById("currentRoomDisplay").innerHTML = `อาคารเรียนที่ ${b}<br><span style="font-size: 1.4em; font-weight: 800; color: #6366f1;">ห้อง ${b}-${fStr}${rStr}</span>`;
+            document.getElementById("start-screen").style.display = "none";
+            document.getElementById("dashboard-screen").style.display = "block";
+            
+            if (typeof fetchRoomDevice === "function") fetchRoomDevice();
+            updateRoomLayout();
+            
+            if (typeof window.updateAiDisplay === "function") window.updateAiDisplay();
+        }
+
+        function goBackToSelect() { document.getElementById("dashboard-screen").style.display = "none"; document.getElementById("start-screen").style.display = "flex"; }
+
+        function updateRoomLayout() {
+            const b = parseInt(document.getElementById("buildingSelect").value);
+            const f = parseInt(document.getElementById("floorSelect").value);
+            const r = parseInt(document.getElementById("roomSelect").value);
+            const title = document.getElementById("heatmapTitle");
+            const grids = document.querySelectorAll('.seats-grid');
+            
+            const acLab = document.getElementById("acGroupLab");
+            const acLec = document.getElementById("acGroupLecturer");
+            const ac3Row = document.getElementById("ac3_row"); 
+
+            if (b === 5 && f === 9 && r === 2) {
+                title.innerText = "Lab Room Heatmap (5-0902)";
+                acLab.style.display = "block"; acLec.style.display = "none";
+                if (ac3Row) ac3Row.style.display = "table-row"; 
+                grids.forEach(g => { g.className = "seats-grid lab-layout"; g.innerHTML = "<i></i><i></i><i></i><i></i><i></i><i></i>"; });
+            } else {
+                title.innerText = "Lecturer Room Heatmap (5-0706)";
+                acLab.style.display = "none"; acLec.style.display = "block";
+                if (ac3Row) ac3Row.style.display = "none"; 
+                grids.forEach(g => { g.className = "seats-grid lecture-layout"; g.innerHTML = "<i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>"; });
+            }
+        }
+
+        const voteObserver = new MutationObserver(() => {
+            const lines = document.getElementById('aiMessage').innerText.split('\n');
+            lines.forEach(l => {
+                if(l.includes('Zone')) {
+                    const z = l.charAt(5), c = l.match(/❄️(\d+)/), co = l.match(/😌(\d+)/), h = l.match(/🔥(\d+)/);
+                    if(c) document.getElementById(`v_cold_${z}`).innerText = c[1];
+                    if(co) document.getElementById(`v_cozy_${z}`).innerText = co[1];
+                    if(h) document.getElementById(`v_hot_${z}`).innerText = h[1];
+                }
+            });
+        });
+        voteObserver.observe(document.getElementById('aiMessage'), { childList: true, subtree: true });
+    </script>
+    <script src="background.js"></script>
+    <script type="module" src="dashboard.js"></script>
+</body>
+</html>
