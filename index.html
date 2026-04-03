@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPU Smart-Cozy Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <div id="start-screen" class="start-screen-wrapper">
+        <div class="start-modal">
+            <div class="modal-header">
+                <h2>Smart-Cozy Admin</h2>
+                <p>กรุณาระบุตำแหน่งห้องเรียนเพื่อเข้าสู่ระบบ</p>
+            </div>
+            <div class="location-box">
+                <div class="form-group custom-select"><select id="buildingSelect" onchange="updateFloors()"><option value="" disabled selected>-- โหลดข้อมูลตึกเรียน --</option></select></div>
+                <div class="form-group custom-select"><select id="floorSelect" onchange="updateRooms()"><option value="" disabled selected>-- เลือกชั้นเรียน --</option></select></div>
+                <div class="form-group custom-select"><select id="roomSelect"><option value="" disabled selected>-- เลือกห้องเรียน --</option></select></div>
+            </div>
+            <button class="btn-sync" onclick="enterDashboard()">เข้าสู่ Dashboard</button>
+        </div>
+    </div>
+
+    <div id="dashboard-screen" class="dashboard-wrapper" style="display:none;">
+        <div class="header-container">
+            <div class="title-section"><h1>Smart-Cozy Admin <span id="db-status-badge" class="status-badge offline-badge">Offline</span></h1></div>
+            <div class="weather-pill" id="weatherDisplay">สภาพอากาศภายนอก °C</div>
+        </div>
+
+        <div class="main-layout">
+            <div class="column-left">
+                <div class="panel">
+                    <div class="panel-title">ห้องเรียนที่กำลังมอนิเตอร์</div>
+                    <hr class="dashed-divider">
+                    <div class="current-room-box" id="currentRoomDisplay">--</div>
+                    <button class="btn-change-room" onclick="goBackToSelect()">⬅ เปลี่ยนห้องเรียน</button>
+                    <div id="deviceInfo" style="display:none;"><span id="deviceDetail"></span></div>
+                </div>
+                <div class="panel">
+                    <div class="panel-title" style="justify-content: center;">จำนวนคนโหวต (ล่าสุด)</div>
+                    <hr class="dashed-divider">
+                    <div class="vote-legend">
+                        <span class="legend-pill cold">หนาว</span>
+                        <span class="legend-pill cozy">สบาย</span>
+                        <span class="legend-pill hot">ร้อน</span>
+                    </div>
+                    <div class="vote-ui-table">
+                        <div class="vote-zone"><div class="z-header">Zone A</div><div class="z-values"><div class="v-box bg-cold" id="v_cold_A">0</div><div class="v-box bg-cozy" id="v_cozy_A">0</div><div class="v-box bg-hot" id="v_hot_A">0</div></div></div>
+                        <div class="vote-zone"><div class="z-header">Zone B</div><div class="z-values"><div class="v-box bg-cold" id="v_cold_B">0</div><div class="v-box bg-cozy" id="v_cozy_B">0</div><div class="v-box bg-hot" id="v_hot_B">0</div></div></div>
+                        <div class="vote-zone"><div class="z-header">Zone C</div><div class="z-values"><div class="v-box bg-cold" id="v_cold_C">0</div><div class="v-box bg-cozy" id="v_cozy_C">0</div><div class="v-box bg-hot" id="v_hot_C">0</div></div></div>
+                        <div class="vote-zone"><div class="z-header">Zone D</div><div class="z-values"><div class="v-box bg-cold" id="v_cold_D">0</div><div class="v-box bg-cozy" id="v_cozy_D">0</div><div class="v-box bg-hot" id="v_hot_D">0</div></div></div>
+                    </div>
+                    <canvas id="voteChart" style="display:none;"></canvas>
+                </div>
+            </div>
+
+            <div class="column-center">
+                <div class="panel heatmap-panel">
+                    <div class="panel-title" id="heatmapTitle">Classroom Heatmap</div>
+                    <hr class="dashed-divider">
+                    <div class="white-board-wrapper"><div class="white-board-main"></div></div>
+                    <div class="heatmap-container" style="padding: 30px 40px 40px 50px;">
+                        <div id="acGroupLab" style="display: none;">
+                            <div class="ac-unit pos-top-left"><div class="ac-icon"></div><div class="ac-wind">* 〰️</div></div>
+                            <div class="ac-unit pos-top-center"><div class="ac-icon"></div><div class="ac-wind">* 〰️</div></div>
+                            <div class="ac-unit pos-top-right"><div class="ac-icon"></div><div class="ac-wind">* 〰️</div></div>
+                        </div>
+                        <div id="acGroupLecturer" style="display: none;">
+                            <div class="ac-unit pos-left-top"><div class="ac-icon"></div><div class="ac-wind">* 〰️</div></div>
+                            <div class="ac-unit pos-left-bottom"><div class="ac-icon"></div><div class="ac-wind">* 〰️</div></div>
+                            <div class="ac-unit pos-bottom-center"><div class="ac-icon"></div><div class="ac-wind">* 〰️</div></div>
+                        </div>
+                        <div class="heatmap-grid">
+                            <div class="zone-wrapper align-left"><div class="zone-letter" id="letter_A">A</div><div id="Zone_A" class="zone-card"><div class="seats-grid"></div></div></div>
+                            <div class="zone-wrapper align-right"><div id="Zone_B" class="zone-card"><div class="seats-grid"></div></div><div class="zone-letter" id="letter_B">B</div></div>
+                            <div class="zone-wrapper align-left"><div class="zone-letter" id="letter_C">C</div><div id="Zone_C" class="zone-card"><div class="seats-grid"></div></div></div>
+                            <div class="zone-wrapper align-right"><div id="Zone_D" class="zone-card"><div class="seats-grid"></div></div><div class="zone-letter" id="letter_D">D</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column-right">
+                <div class="panel right-panel">
+                    <div class="panel-title">Devices Sensor</div>
+                    <hr class="dashed-divider">
+                    <p style="font-size: 0.75em; color: #94a3b8;">ตารางสถานะเซ็นเซอร์ AI</p>
+                    <table class="sensor-table">
+                        <tr><th>โซน</th><th style="text-align: right;">อุณหภูมิ | เซอร์โว</th></tr>
+                        <tr><td class="fw-bold">Zone A</td><td class="sensor-val"><span id="temp_A">--</span> | <span id="servo_1">Auto</span></td></tr>
+                        <tr><td class="fw-bold">Zone B</td><td class="sensor-val"><span id="temp_B">--</span> | <span id="servo_2">Auto</span></td></tr>
+                        <tr><td class="fw-bold">Zone C</td><td class="sensor-val"><span id="temp_C">--</span> | <span id="servo_3">Auto</span></td></tr>
+                        <tr><td class="fw-bold">Zone D</td><td class="sensor-val"><span id="temp_D">--</span> | Auto</td></tr>
+                    </table>
+                    <div class="ai-log-box" style="display: none;"><div id="aiMessage"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function enterDashboard() {
+            const b = document.getElementById("buildingSelect").value;
+            const f = document.getElementById("floorSelect").value;
+            const r = document.getElementById("roomSelect").value;
+            if (!b || !f || !r) return;
+            const fStr = parseInt(f) < 10 ? '0' + parseInt(f) : parseInt(f);
+            const rStr = parseInt(r) < 10 ? '0' + parseInt(r) : parseInt(r);
+            document.getElementById("currentRoomDisplay").innerHTML = `อาคารเรียนที่ ${b}<br><span style="font-size: 1.4em; font-weight: 800; color: #6366f1;">ห้อง ${b}-${fStr}${rStr}</span>`;
+            document.getElementById("start-screen").style.display = "none";
+            document.getElementById("dashboard-screen").style.display = "block";
+            fetchRoomDevice(); updateRoomLayout();
+        }
+        function goBackToSelect() { document.getElementById("dashboard-screen").style.display = "none"; document.getElementById("start-screen").style.display = "flex"; }
+        function updateRoomLayout() {
+            const b = document.getElementById("buildingSelect").value;
+            const f = document.getElementById("floorSelect").value;
+            const r = document.getElementById("roomSelect").value;
+            const title = document.getElementById("heatmapTitle");
+            const grids = document.querySelectorAll('.seats-grid');
+            const acLab = document.getElementById("acGroupLab");
+            const acLec = document.getElementById("acGroupLecturer");
+            if (parseInt(b) === 5 && parseInt(f) === 9 && parseInt(r) === 2) {
+                title.innerText = "Lab Room Heatmap (5-0902)";
+                acLab.style.display = "block"; acLec.style.display = "none";
+                grids.forEach(g => { g.className = "seats-grid lab-layout"; g.innerHTML = "<i></i><i></i><i></i><i></i><i></i><i></i>"; });
+            } else {
+                title.innerText = "Lecturer Room Heatmap (5-0706)";
+                acLab.style.display = "none"; acLec.style.display = "block";
+                grids.forEach(g => { g.className = "seats-grid lecture-layout"; g.innerHTML = "<i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>"; });
+            }
+        }
+        const observer = new MutationObserver(() => {
+            const lines = document.getElementById('aiMessage').innerText.split('\n');
+            lines.forEach(l => {
+                if(l.includes('Zone')) {
+                    const z = l.charAt(5), c = l.match(/❄️(\d+)/), co = l.match(/😌(\d+)/), h = l.match(/🔥(\d+)/);
+                    const coldEl = document.getElementById(`v_cold_${z}`);
+                    const cozyEl = document.getElementById(`v_cozy_${z}`);
+                    const hotEl  = document.getElementById(`v_hot_${z}`);
+                    if(c  && coldEl) coldEl.innerText = c[1];
+                    if(co && cozyEl) cozyEl.innerText = co[1];
+                    if(h  && hotEl)  hotEl.innerText  = h[1];
+                }
+            });
+        });
+        observer.observe(document.getElementById('aiMessage'), { childList: true, subtree: true });
+    </script>
+    <script src="background.js"></script>
+    <script type="module" src="dashboard.js"></script>
+</body>
+</html>
